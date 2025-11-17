@@ -77,7 +77,7 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
     // Remove light after animation completes
     setTimeout(() => {
       setLights(prev => prev.filter(light => light.id !== newLight.id))
-    }, 2000)
+    }, 1000)
   }, [incrementCount, lightIdCounter])
 
   // Handle keyboard events
@@ -87,7 +87,24 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         e.preventDefault()
-        handleIncrement()
+        // Trigger increment with a synthetic event-like object to include position
+        incrementCount()
+
+        // Get random Y position for space key
+        const yPosition = Math.random() * 80 + 10
+
+        // Add new light animation
+        const newLight: LightAnimation = {
+          id: lightIdCounter,
+          y: yPosition,
+        }
+        setLightIdCounter(prev => prev + 1)
+        setLights(prev => [...prev, newLight])
+
+        // Remove light after animation completes
+        setTimeout(() => {
+          setLights(prev => prev.filter(light => light.id !== newLight.id))
+        }, 1000)
       } else if (e.code === 'Escape') {
         onClose()
       }
@@ -95,7 +112,7 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, handleIncrement, onClose])
+  }, [isOpen, incrementCount, onClose, lightIdCounter])
 
   if (!isOpen) return null
 
@@ -110,46 +127,43 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
         {lights.map(light => (
           <motion.div
             key={light.id}
-            initial={{ x: '-10%', opacity: 0 }}
+            initial={{ x: 0, opacity: 1 }}
             animate={{
-              x: '110%',
-              opacity: [0, 1, 1, 0],
+              x: window.innerWidth,
+              opacity: 1,
             }}
             exit={{ opacity: 0 }}
             transition={{
-              duration: 2,
-              ease: 'easeInOut',
+              duration: 1.0,
+              ease: 'linear',
             }}
             className="absolute pointer-events-none"
             style={{
               top: `${light.y}%`,
               left: 0,
+              width: '100px',
+              height: '100px',
+              transform: 'translate(-50%, -50%)',
             }}
           >
-            {/* Main light beam */}
-            <div className="relative">
-              {/* Glow effect */}
+            {/* Bright moving light with trail effect */}
+            <div className="relative w-full h-full">
+              {/* Main bright light */}
               <div
-                className="absolute w-32 h-32 rounded-full blur-3xl opacity-60"
+                className="absolute w-20 h-20 rounded-full"
                 style={{
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.4) 50%, transparent 70%)',
-                  transform: 'translate(-50%, -50%)',
+                  background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 20%, rgba(200,230,255,0.7) 40%, rgba(150,200,255,0.3) 60%, transparent 100%)',
+                  boxShadow: '0 0 40px 20px rgba(255,255,255,0.8), 0 0 80px 40px rgba(200,230,255,0.4)',
+                  filter: 'brightness(1.5)',
                 }}
               />
-              {/* Core light */}
+              {/* Trail effect */}
               <div
-                className="absolute w-24 h-24 rounded-full blur-2xl opacity-80"
+                className="absolute w-32 h-16 rounded-full"
                 style={{
-                  background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(200,230,255,0.6) 40%, transparent 70%)',
-                  transform: 'translate(-50%, -50%)',
-                }}
-              />
-              {/* Bright center */}
-              <div
-                className="absolute w-8 h-8 rounded-full blur-sm"
-                style={{
-                  background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
-                  transform: 'translate(-50%, -50%)',
+                  background: 'linear-gradient(to right, rgba(255,255,255,0.6), rgba(200,230,255,0.3), transparent)',
+                  transform: 'translateX(-50px) translateY(10px)',
+                  filter: 'blur(8px)',
                 }}
               />
             </div>
