@@ -10,7 +10,7 @@ interface AddSessionModalProps {
 }
 
 export const AddSessionModal: React.FC<AddSessionModalProps> = ({ isOpen, onClose }) => {
-  const { counters, sessions, stats, saveSessionManually } = useTasbeeh()
+  const { counters, saveSessionManually } = useTasbeeh()
   const [selectedCounterId, setSelectedCounterId] = useState(counters[0]?.id || '')
   const [count, setCount] = useState('')
   const [goal, setGoal] = useState('')

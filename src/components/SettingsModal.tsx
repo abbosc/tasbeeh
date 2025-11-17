@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Trash2, Edit2, Leaf, Heart, Star, Sparkles, LogOut, User, Volume2 } from 'lucide-react'
+import { X, Plus, Trash2, Leaf, Heart, Star, Sparkles, LogOut, User, Volume2 } from 'lucide-react'
 import { useTasbeeh } from '../context/TasbeehContext'
 import { useAuth } from '../context/AuthContext'
 import { soundManager, ClickSoundType } from '../lib/sounds'

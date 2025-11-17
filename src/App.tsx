@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { TasbeehProvider } from './context/TasbeehContext'
 import { Auth } from './components/Auth'

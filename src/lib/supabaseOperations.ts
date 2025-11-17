@@ -1,7 +1,7 @@
 import { supabase, Counter, Session, DailyStats } from './supabase'
 
 // Counter operations
-export const fetchCountersFromSupabase = async (userId?: string) => {
+export const fetchCountersFromSupabase = async (_userId?: string) => {
   const { data, error } = await supabase
     .from('counters')
     .select('*')
@@ -59,7 +59,7 @@ export const deleteCounterFromSupabase = async (id: string) => {
 }
 
 // Session operations
-export const fetchSessionsFromSupabase = async (userId?: string) => {
+export const fetchSessionsFromSupabase = async (_userId?: string) => {
   const { data, error } = await supabase
     .from('sessions')
     .select('*')
@@ -104,7 +104,7 @@ export const deleteSessionFromSupabase = async (id: string) => {
 }
 
 // Stats operations
-export const fetchStatsFromSupabase = async (userId?: string) => {
+export const fetchStatsFromSupabase = async (_userId?: string) => {
   const { data, error } = await supabase
     .from('daily_stats')
     .select('*')
@@ -156,7 +156,7 @@ export const upsertDailyStatToSupabase = async (stat: Omit<DailyStats, 'id' | 'c
   return true
 }
 
-export const updateDailyStatCountInSupabase = async (date: string, countChange: number, userId?: string) => {
+export const updateDailyStatCountInSupabase = async (date: string, countChange: number, _userId?: string) => {
   const dateOnly = date.split('T')[0]
   const nextDay = new Date(new Date(dateOnly).setDate(new Date(dateOnly).getDate() + 1)).toISOString().split('T')[0]
 

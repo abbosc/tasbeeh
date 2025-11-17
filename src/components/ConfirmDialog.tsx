@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertTriangle, Trash2, RotateCcw, CheckCircle } from 'lucide-react'
+import { AlertTriangle, Trash2, CheckCircle } from 'lucide-react'
 
 interface ConfirmDialogProps {
   isOpen: boolean
