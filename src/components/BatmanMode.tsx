@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useTasbeeh } from '../context/TasbeehContext'
@@ -16,8 +16,17 @@ interface LightAnimation {
 export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
   const { currentCount, incrementCount } = useTasbeeh()
   const [lights, setLights] = useState<LightAnimation[]>([])
-  const [lightIdCounter, setLightIdCounter] = useState(0)
+  const [_lightIdCounter, setLightIdCounter] = useState(0)
   const [showExitHint, setShowExitHint] = useState(true)
+
+  // Refs to avoid closure issues in keyboard handler
+  const incrementCountRef = useRef(incrementCount)
+  const triggerAnimationRef = useRef<(yPosition?: number) => void>(() => {})
+
+  // Update refs when functions change
+  useEffect(() => {
+    incrementCountRef.current = incrementCount
+  }, [incrementCount])
 
   // Hide exit hint after 3 seconds
   useEffect(() => {
@@ -48,7 +57,34 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen])
 
-  // Handle count increment
+  // Trigger light animation
+  const triggerAnimation = useCallback((yPosition?: number) => {
+    const y = yPosition ?? Math.random() * 80 + 10
+
+    setLightIdCounter(prevId => {
+      const newId = prevId + 1
+      const newLight: LightAnimation = {
+        id: newId,
+        y,
+      }
+
+      setLights(prev => [...prev, newLight])
+
+      // Remove light after animation completes
+      setTimeout(() => {
+        setLights(prev => prev.filter(light => light.id !== newId))
+      }, 1000)
+
+      return newId
+    })
+  }, [])
+
+  // Update ref whenever triggerAnimation changes
+  useEffect(() => {
+    triggerAnimationRef.current = triggerAnimation
+  }, [triggerAnimation])
+
+  // Handle count increment from click/touch
   const handleIncrement = useCallback((event?: React.MouseEvent | React.TouchEvent) => {
     if (event) {
       event.preventDefault()
@@ -57,8 +93,8 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
 
     incrementCount()
 
-    // Get random Y position (if it's a mouse/touch event, use that position)
-    let yPosition = Math.random() * 80 + 10 // 10-90% of screen height
+    // Get Y position from event or random
+    let yPosition = Math.random() * 80 + 10
 
     if (event && 'clientY' in event) {
       yPosition = (event.clientY / window.innerHeight) * 100
@@ -66,19 +102,8 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
       yPosition = (event.touches[0].clientY / window.innerHeight) * 100
     }
 
-    // Add new light animation
-    const newLight: LightAnimation = {
-      id: lightIdCounter,
-      y: yPosition,
-    }
-    setLightIdCounter(prev => prev + 1)
-    setLights(prev => [...prev, newLight])
-
-    // Remove light after animation completes
-    setTimeout(() => {
-      setLights(prev => prev.filter(light => light.id !== newLight.id))
-    }, 1000)
-  }, [incrementCount, lightIdCounter])
+    triggerAnimation(yPosition)
+  }, [incrementCount, triggerAnimation])
 
   // Handle keyboard events
   useEffect(() => {
@@ -87,24 +112,9 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         e.preventDefault()
-        // Trigger increment with a synthetic event-like object to include position
-        incrementCount()
-
-        // Get random Y position for space key
-        const yPosition = Math.random() * 80 + 10
-
-        // Add new light animation
-        const newLight: LightAnimation = {
-          id: lightIdCounter,
-          y: yPosition,
-        }
-        setLightIdCounter(prev => prev + 1)
-        setLights(prev => [...prev, newLight])
-
-        // Remove light after animation completes
-        setTimeout(() => {
-          setLights(prev => prev.filter(light => light.id !== newLight.id))
-        }, 1000)
+        // Use refs to avoid closure issues
+        incrementCountRef.current()
+        triggerAnimationRef.current()
       } else if (e.code === 'Escape') {
         onClose()
       }
@@ -112,7 +122,7 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, incrementCount, onClose, lightIdCounter])
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
