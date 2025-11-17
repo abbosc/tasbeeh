@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Target, Check, Maximize } from 'lucide-react'
+import { RotateCcw, Target, Check, Maximize, Moon } from 'lucide-react'
 import { useTasbeeh } from '../context/TasbeehContext'
 import { ConfirmDialog } from './ConfirmDialog'
 
 interface ActionButtonsProps {
   onOpenGoalModal: () => void
   onOpenFocusMode: () => void
+  onOpenBatmanMode: () => void
 }
 
-export const ActionButtons: React.FC<ActionButtonsProps> = ({ onOpenGoalModal, onOpenFocusMode }) => {
+export const ActionButtons: React.FC<ActionButtonsProps> = ({ onOpenGoalModal, onOpenFocusMode, onOpenBatmanMode }) => {
   const { currentCount, resetCount, completeSession, currentGoal } = useTasbeeh()
   const [showResetDialog, setShowResetDialog] = useState(false)
 
@@ -34,6 +35,16 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ onOpenGoalModal, o
         >
           <Maximize size={20} />
           Focus Mode
+        </motion.button>
+
+        {/* Batman Mode Button */}
+        <motion.button
+          onClick={onOpenBatmanMode}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-900 text-white font-semibold hover:bg-black transition-colors dark:bg-gray-800 dark:hover:bg-gray-900"
+          whileTap={{ scale: 0.95 }}
+        >
+          <Moon size={20} />
+          Batman Mode
         </motion.button>
 
         {/* Set Goal Button */}

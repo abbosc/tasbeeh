@@ -10,6 +10,7 @@ import { GoalModal } from './components/GoalModal'
 import { Statistics } from './components/Statistics'
 import { SettingsModal } from './components/SettingsModal'
 import { FocusMode } from './components/FocusMode'
+import { BatmanMode } from './components/BatmanMode'
 import { BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { getDarkMode, saveDarkMode } from './lib/localStorage'
@@ -19,6 +20,7 @@ function MainApp() {
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false)
+  const [isBatmanModeOpen, setIsBatmanModeOpen] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
 
@@ -147,6 +149,7 @@ function MainApp() {
               <ActionButtons
                 onOpenGoalModal={() => setIsGoalModalOpen(true)}
                 onOpenFocusMode={() => setIsFocusModeOpen(true)}
+                onOpenBatmanMode={() => setIsBatmanModeOpen(true)}
               />
             </motion.div>
           )}
@@ -174,6 +177,10 @@ function MainApp() {
           <FocusMode
             isOpen={isFocusModeOpen}
             onClose={() => setIsFocusModeOpen(false)}
+          />
+          <BatmanMode
+            isOpen={isBatmanModeOpen}
+            onClose={() => setIsBatmanModeOpen(false)}
           />
         </div>
       </div>
