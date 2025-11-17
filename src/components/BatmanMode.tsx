@@ -22,6 +22,7 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
   // Refs to avoid closure issues in keyboard handler
   const incrementCountRef = useRef(incrementCount)
   const triggerAnimationRef = useRef<(yPosition?: number) => void>(() => {})
+  const touchedRef = useRef(false)
 
   // Update refs when functions change
   useEffect(() => {
@@ -84,22 +85,43 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
     triggerAnimationRef.current = triggerAnimation
   }, [triggerAnimation])
 
-  // Handle count increment from click/touch
-  const handleIncrement = useCallback((event?: React.MouseEvent | React.TouchEvent) => {
-    if (event) {
-      event.preventDefault()
-      event.stopPropagation()
-    }
+  // Handle touch events
+  const handleTouch = useCallback((event: React.TouchEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    touchedRef.current = true
+    setTimeout(() => {
+      touchedRef.current = false
+    }, 500)
 
     incrementCount()
 
-    // Get Y position from event or random
+    // Get Y position from touch
     let yPosition = Math.random() * 80 + 10
-
-    if (event && 'clientY' in event) {
-      yPosition = (event.clientY / window.innerHeight) * 100
-    } else if (event && 'touches' in event && event.touches.length > 0) {
+    if (event.touches.length > 0) {
       yPosition = (event.touches[0].clientY / window.innerHeight) * 100
+    }
+
+    triggerAnimation(yPosition)
+  }, [incrementCount, triggerAnimation])
+
+  // Handle click events (mouse only, ignore if touch just happened)
+  const handleClick = useCallback((event: React.MouseEvent) => {
+    // Ignore click if it was preceded by a touch event
+    if (touchedRef.current) {
+      return
+    }
+
+    event.preventDefault()
+    event.stopPropagation()
+
+    incrementCount()
+
+    // Get Y position from click
+    let yPosition = Math.random() * 80 + 10
+    if ('clientY' in event) {
+      yPosition = (event.clientY / window.innerHeight) * 100
     }
 
     triggerAnimation(yPosition)
@@ -129,8 +151,8 @@ export const BatmanMode: React.FC<BatmanModeProps> = ({ isOpen, onClose }) => {
   return (
     <div
       className="fixed inset-0 z-[100] bg-black cursor-pointer select-none overflow-hidden"
-      onClick={handleIncrement}
-      onTouchStart={handleIncrement}
+      onClick={handleClick}
+      onTouchStart={handleTouch}
     >
       {/* Light animations */}
       <AnimatePresence>
